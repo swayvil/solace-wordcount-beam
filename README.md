@@ -21,7 +21,8 @@ You have two options to setup a Solace PubSub+ Broker.
     * Got web_assets\BeamPubSub.html and click the Connect Button, type text into the TextArea and Click 'Publish Message'.     
       The text will get sent to Apache Beam and results will be streamed back!
     
-    ![Solace Apache Beam](static_assets/apache-beam-solace.gif "Apache Beam Solace")
+   ![Solace Apache Beam](static_assets/apache-beam-solace.gif "Solace APache Beam")
+
 
 
 
