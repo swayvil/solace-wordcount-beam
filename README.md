@@ -25,7 +25,8 @@ This is a very simple example of an Apache Beam Pipeline that allows you to stre
     * Got web_assets\BeamPubSub.html and click the Connect Button, type text into the TextArea and Click 'Publish Message'.     
       The text will get sent to Apache Beam and results will be streamed back!
     
-    ![Solace Apache Beam](static_assets/apache-beam-solace.gif "Apache Beam Solace")
+   ![Solace Apache Beam](static_assets/apache-beam-solace.gif "Solace APache Beam")
+
 
 
 
