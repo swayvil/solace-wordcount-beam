@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.beam.examples;
+package com.solace.beam.sample;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
@@ -36,7 +36,6 @@ import org.joda.time.Duration;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 /**
  * An example that counts words in text, and can run over either unbounded or bounded input
@@ -48,14 +47,8 @@ import java.time.LocalDateTime;
  * <p>
  * This sample reads a stream of Text from a well defined topic, parses it into a PCollection, and writes it back as a stream
  * to Solace PubSub+.
- * <p>You can specify a local output file (if using the
- * {@code DirectRunner})
- * <pre>{@code
- *   --output=[YOUR_LOCAL_FILE | YOUR_OUTPUT_PREFIX]
- * }</pre>
- * <p>
- * <p>
- * <p>By default, the pipeline will do fixed windowing, on 1-minute windows.  You can
+ *
+ * <p>By default, the pipeline will do fixed windowing, on 30-second windows.  You can
  * change this interval by setting the {@code --windowSize} parameter, e.g. {@code --windowSize=10}
  * for 10-minute windows.
  * <p>
@@ -136,8 +129,7 @@ public class StreamingWordCount {
     /**
      * Options for {@link StreamingWordCount}.
      * <p>
-     * <p>Inherits standard example configuration options, which allow specification of the
-     * specification of the input and output files.
+     * <p>Defaults all the settings with regards to AMQP Connectivity to Solace to the defaults. Can be customized by running --[option]=value as Program Arguments
      */
     public interface Options extends PipelineOptions {
         @Description("Fixed window duration, in minutes")
@@ -184,27 +176,27 @@ public class StreamingWordCount {
 
         Pipeline pipeline = Pipeline.create(options);
 
+        //Setting up an AMQP QPID JMS Connection Factory
         ConnectionFactory solaceConnectionFactory = new JmsConnectionFactory(options.getSolaceUser(), options.getSolacePassword(), options.getSolaceURL());
 
 
-        PCollection<KV<String, Long>> wordCounts = pipeline
+         pipeline
+                //Setting a read connection to Solace
                 .apply(JmsIO.read().withConnectionFactory(solaceConnectionFactory).withTopic(options.getSolaceReadTopic()))
-                .apply(Window.into(FixedWindows.of(Duration.standardSeconds(30L))))
-                .apply(new CountWords());
-        wordCounts
+                //Windowing the results over the window size (30L)
+                .apply(Window.into(FixedWindows.of(Duration.standardSeconds(options.getWindowSize()))))
+                //Count the words
+                .apply(new CountWords())
+                 //Create a Map of the word counts
                 .apply(MapElements.via(new FormatAsTextFn()))
+                 //Create a JSON Output from the results to be streamed back to the browser
                 .apply("StringCombination", ParDo.of(new DoFn<String, String>() {
                     @ProcessElement
                     public void processElement(ProcessContext c){
                        c.output(c.element() + ",\"timestamp\":\"" + c.timestamp()+"\"}");
                     }
                 }))
-//                .apply("PrintFn",ParDo.of(new DoFn<String,Void>(){
-//                        @ProcessElement
-//                        public void processElement(ProcessContext c){
-//                            System.out.println(c.element());
-//                        }
-//                }));
+                 //Write the results to a JMS Topic
                 .apply(JmsIO.write().withConnectionFactory(solaceConnectionFactory).withTopic(options.getSolaceWriteTopic()));
 
         PipelineResult result = pipeline.run();
