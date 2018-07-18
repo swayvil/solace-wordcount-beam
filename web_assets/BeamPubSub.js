@@ -162,10 +162,12 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
 
 
 
-            var messageText = document.getElementById('wordcountText').value;
+            var messageText = document.getElementById('wordcountText').value.trim();
+
+            if(!_.isEmpty(messageText))
+            {
             var message = solace.SolclientFactory.createMessage();
             message.setDestination(solace.SolclientFactory.createTopicDestination(beamPubSub.readTopicName));
-            //            message.setUserData(messageText);
             message.setSdtContainer(solace.SDTField.create(solace.SDTFieldType.STRING,messageText));
             message.setDeliveryMode(solace.MessageDeliveryModeType.DIRECT);
             message.setApplicationMessageId((Math.floor(Math.random() * Math.floor(10000))).toString());
@@ -178,8 +180,9 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
             } catch (error) {
                 beamPubSub.log(error.toString());
             }
-        } else {
-            beamPubSub.log('Cannot publish because not connected to Solace message router.');
+            }
+        }else {
+             beamPubSub.log('Cannot publish because not connected to Solace message router.');
         }
     };
 
