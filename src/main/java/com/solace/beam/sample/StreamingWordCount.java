@@ -26,6 +26,8 @@ import org.apache.beam.sdk.metrics.Distribution;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.options.*;
 import org.apache.beam.sdk.transforms.*;
+import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
+import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
@@ -122,7 +124,10 @@ public class StreamingWordCount {
     public static class FormatAsTextFn extends SimpleFunction<KV<String, Long>, String> {
         @Override
         public String apply(KV<String, Long> input) {
-            return "{\"word\":\""+input.getKey() + "\", \"count\":\"" + input.getValue()+"\"";
+            if(input.getValue()!=0)
+                return "{\"word\":\""+input.getKey() + "\", \"count\":\"" + input.getValue()+"\"";
+            else
+                return "";
         }
     }
 
@@ -184,7 +189,11 @@ public class StreamingWordCount {
                 //Setting a read connection to Solace
                 .apply(JmsIO.read().withConnectionFactory(solaceConnectionFactory).withTopic(options.getSolaceReadTopic()))
                 //Windowing the results over the window size (30L)
-                .apply(Window.into(FixedWindows.of(Duration.standardSeconds(options.getWindowSize()))))
+                .apply(Window.<JmsRecord>into(FixedWindows.of(Duration.standardSeconds(options.getWindowSize()))).triggering(
+                        AfterWatermark.pastEndOfWindow()
+                                .withEarlyFirings(AfterProcessingTime
+                                        .pastFirstElementInPane().plusDelayOf(Duration.standardSeconds(options.getWindowSize()))))
+                        .withAllowedLateness(Duration.ZERO).discardingFiredPanes())
                 //Count the words
                 .apply(new CountWords())
                  //Create a Map of the word counts
