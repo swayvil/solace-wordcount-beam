@@ -4,16 +4,16 @@
 
 This is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the results of a word count Beam processor through another stream.
 
-### Setting up a Solace PubSub+ Broker
+### Setting up a Solace PubSub+ Broker with Docker
 
   
    * Download the Solace PubSub+ Standard Docker Container - https://products.solace.com/download/PUBSUB_DOCKER_STAND
    
-   * Run the following commands (assuming you have docker installed)
+   * Run the following commands (replace x.x.x.x with the Solace PubSub+ Broker version)
       ```
        >docker load -i .\solace-pubsub-standard-x.x.x.x-docker.tar.gz
-       >docker run -d -p 8080:8080 -p 55555:55555 -p 5672:5672 -p 443:443 --shm-size=2g --env 'username_admin_global
-       accesslevel=admin' --env 'username_admin_password=admin'  --name=solace solace-pubsub-standard:x.x.x.x
+       >docker run -d -p 8080:8080 -p 55555:55555 -p 5672:5672 -p 443:443 --shm-size=2g --env username_admin_global
+       accesslevel=admin --env username_admin_password=admin  --name=solace solace-pubsub-standard:x.x.x.x
       ```
       
     * Run the following maven commands - 
