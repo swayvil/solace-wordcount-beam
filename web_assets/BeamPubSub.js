@@ -55,16 +55,18 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
             beamPubSub.log('Already connected and ready to publish messages.');
             return;
         }
-        var hosturl = document.getElementById('hosturl').value;
+        var hosturl = 'ws://localhost:80';
         // check for valid protocols
         if (hosturl.lastIndexOf('ws://', 0) !== 0 && hosturl.lastIndexOf('wss://', 0) !== 0 &&
             hosturl.lastIndexOf('http://', 0) !== 0 && hosturl.lastIndexOf('https://', 0) !== 0) {
             beamPubSub.log('Invalid protocol - please use one of ws://, wss://, http://, https://');
             return;
         }
-        var username = document.getElementById('username').value;
-        var pass = document.getElementById('password').value;
-        var vpn = document.getElementById('message-vpn').value;
+
+        var username = 'default';
+        var pass = 'default';
+        var vpn = 'default';
+
         if (!hosturl || !username || !pass || !vpn) {
             beamPubSub.log('Cannot connect: please specify all the Solace message router properties.');
             return;
@@ -87,7 +89,6 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
         // define session event listeners
         beamPubSub.session.on(solace.SessionEventCode.UP_NOTICE, function (sessionEvent) {
             beamPubSub.log('=== Successfully connected and ready to publish messages. ===');
-            document.getElementById("connectivityForm").style.display='none';
             document.getElementById("WordCount").style.display='block';
             if(!beamPubSub.subscribed){
                           beamPubSub.subscribe();
@@ -114,9 +115,9 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
                 // define message event listener
                 beamPubSub.session.on(solace.SessionEventCode.MESSAGE, function (message) {
                    beamPubSub.wordCounts.push(JSON.parse(message.getSdtContainer().Gi));
+                   document.getElementById('beam-loading').style.visibility='hidden';
                    beamPubSub.wordCountHTML="";
                   _.each(_.groupBy(beamPubSub.wordCounts,'timestamp'),function(groupedValues,key){
-
                                     beamPubSub.wordCountHTML += "<table class='wordcounttable'><tr><th colspan=2>" + key +"</th></tr><tr><th>Word</th><th>Count</th></tr>"
                                     var that = this;
                   					console.log(key);
@@ -171,6 +172,8 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
             message.setSenderTimestamp(Date.now());
             try {
                 beamPubSub.session.send(message);
+                document.getElementById('wordcountText').value='';
+                document.getElementById('beam-loading').style.visibility='visible';
                 beamPubSub.log('Message published.');
             } catch (error) {
                 beamPubSub.log(error.toString());
