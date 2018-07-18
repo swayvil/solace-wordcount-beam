@@ -12,14 +12,14 @@ This is a very simple example of an Apache Beam Pipeline that allows you to stre
    * Run the following commands (replace x.x.x.x with the Solace PubSub+ Broker version)
       ```
        >docker load -i .\solace-pubsub-standard-x.x.x.x-docker.tar.gz
-       >docker run -d -p 8080:8080 -p 55555:55555 -p 5672:5672 -p 443:443 --shm-size=2g --env username_admin_global
+       >docker run -d -p 80:80 -p 8080:8080 -p 55555:55555 --shm-size=2g --env username_admin_global
        accesslevel=admin --env username_admin_password=admin  --name=solace solace-pubsub-standard:x.x.x.x
       ```
       
     * Run the following maven commands - 
         ```
-            mvn clean install
-            mvn exec:exec
+            >mvn clean install
+            >mvn exec:exec
         ```
     
     * Got web_assets\BeamPubSub.html and click the Connect Button, type text into the TextArea and Click 'Publish Message'.     
