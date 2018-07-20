@@ -55,7 +55,7 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
             beamPubSub.log('Already connected and ready to publish messages.');
             return;
         }
-        var hosturl = 'ws://localhost:80';
+        var hosturl = 'ws://10.104.27.51:80';
         // check for valid protocols
         if (hosturl.lastIndexOf('ws://', 0) !== 0 && hosturl.lastIndexOf('wss://', 0) !== 0 &&
             hosturl.lastIndexOf('http://', 0) !== 0 && hosturl.lastIndexOf('https://', 0) !== 0) {
@@ -118,7 +118,7 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
                    document.getElementById('beam-loading').style.visibility='hidden';
                    beamPubSub.wordCountHTML="";
                   _.each(_.groupBy(beamPubSub.wordCounts,'timestamp'),function(groupedValues,key){
-                                    beamPubSub.wordCountHTML += "<table class='wordcounttable'><tr><th colspan=2>" + key +"</th></tr><tr><th>Word</th><th>Count</th></tr>"
+                                    beamPubSub.wordCountHTML += "<table class='wordcounttable'><tr><td colspan=2 style='background:#888; color:#fff;'>" + key +"</td></tr><tr><th>Word</th><th>Count</th></tr>"
                                     var that = this;
                   					console.log(key);
                                       _.each(groupedValues,function(value){

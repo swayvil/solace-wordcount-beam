@@ -96,17 +96,18 @@
 <!-- used to prompt selection of client certificate -->
 <iframe id="iframe" src="" onload="iframeloaded()" hidden></iframe>
 <div class="banner">
-  <div class="banner-interior">
+  <div class="banner-interior" style="width:1030px; margin: 0 auto;">
         <span class="logo">
           <a href="http://dev.solace.com/">
             <img src="Solace_Logo_Green_360x100-1.png" width="360px" height="100px"/>
           </a>
         </span>
-    <div class="banner-heading">
-      Apache Beam Solace Sample
+    <div class="banner-heading" style="margin-top:25px;">
+Apache Beam Solace Sample
     </div>
   </div>
 </div>
+
 
 <div class="doc-body">
 
@@ -120,25 +121,31 @@
     IE 11 only: If you are running this sample from the local filesystem, click the "Allow blocked content" button
     in the popup below to enable JavaScript.
   </div>
+      <p style="font-size:.9em;"><img src="../static_assets/word-count-beam.png" style="width:420px; float:right; margin-left:25px;">This is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the results of a word count Beam processor through another stream. When you publish a message the text is sent to a PubSub+ message broker via WebSocket, then via AMQP to Apache Beam where the word count is calculated, and the results will be streamed back via those same protocols.</p>
+      <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
 
+      <div style="width:35%; float:left; border:0px solid; margin-right:45px;">
   <form class="pure-form pure-form-aligned">
     <div id="WordCount">
-      <h2>Word Count Publishing and Subscribing</h2>
-    <p>
-      Enter Word Count Text: <textarea id="wordcountText" rows="10" cols="45" autofocus></textarea>
-
-      <button type="button" class="pure-button pure-button-primary" id="publish">Publish Message</button>
+      Enter Message Text:<br>
+<textarea id="wordcountText" rows="5" cols="40" style="width:100%; font-size:.9em; resize:none;" autofocus></textarea><br>
+<button type="button" class="pure-button pure-button-primary" id="publish">Publish Message</button>
     </p>
     </div>
+</div>
 
-     <div id="WordCountTables"></div>
+<div style="width:60%; float:left; border:0px solid;">
+
+
      <div id="beam-loading" style="visibility:hidden"><img src="../static_assets/beam-logo.png" class="beam-processing" width="35px" height="35px" />Processing...</div>
-    <br><br>
-    Log:
-    <textarea id="log" rows="2" cols="90" autofocus></textarea>
-
+    Log:<br>
+    <textarea id="log" rows="6" cols="60" autofocus style="width:100%; font-size:.9em;"></textarea>
+    
   </form>
+</div>
 
+      <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
+  <div id="WordCountTables"></div>
 </div>
 
 </body>

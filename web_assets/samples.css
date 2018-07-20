@@ -1,5 +1,5 @@
 body {
-    font-family:      HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:      Open Sans, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
     margin:           0px;
 }
 
@@ -112,6 +112,28 @@ table{
 table td {
 
 }
+
+table.wordcounttable tbody {
+float:left;
+margin-right:25px;
+margin-bottom:25px;
+border:1px solid #ddd;
+}
+
+table.wordcounttable th {
+    padding:3px 10px !important;
+	text-align:left;
+	background:#ddd;
+	font-size:.9em;
+}
+
+table.wordcounttable td {
+    padding:3px 10px !important;
+	border-bottom:1px solid #ddd;
+	font-size:.9em;
+	align:center;
+}
+
 
 .beam-processing {
     -webkit-animation: rotation 2s infinite linear;

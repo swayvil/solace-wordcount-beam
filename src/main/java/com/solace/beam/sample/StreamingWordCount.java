@@ -57,7 +57,7 @@ import java.io.IOException;
  * <p>The example will try to cancel the pipeline on the signal to terminate the process (CTRL-C).
  */
 public class StreamingWordCount {
-    static final int WINDOW_SIZE = 5;  // Default window duration in minutes
+    static final int WINDOW_SIZE = 10;  // Default window duration in minutes
 
     /**
      * A {@link DefaultValueFactory} that returns the current system time.
