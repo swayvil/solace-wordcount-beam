@@ -464,5 +464,11 @@
       <artifactId>proton-j</artifactId>
       <version>0.27.1</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.2</version>
+    </dependency>
   </dependencies>
 </project>

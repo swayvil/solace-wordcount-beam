@@ -55,7 +55,7 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
             beamPubSub.log('Already connected and ready to publish messages.');
             return;
         }
-        var hosturl = 'ws://10.104.27.51:80';
+        var hosturl = 'ws://localhost:80';
         // check for valid protocols
         if (hosturl.lastIndexOf('ws://', 0) !== 0 && hosturl.lastIndexOf('wss://', 0) !== 0 &&
             hosturl.lastIndexOf('http://', 0) !== 0 && hosturl.lastIndexOf('https://', 0) !== 0) {
