@@ -161,13 +161,13 @@ public class StreamingWordCount {
 
         void setSolaceURL(String solaceUrl);
 
-        @Description("Solace-Read-Topic")
+        @Description("Solace-Word-Count-Read-Topic")
         @Default.String("SOLACE/BEAM/WRITE")
         String getSolaceReadTopic();
 
         void setSolaceReadTopic(String solaceReadTopic);
 
-        @Description("Solace-Write-Topic")
+        @Description("Solace-Word-Count-Write-Topic")
         @Default.String("SOLACE/BEAM/READ")
         String getSolaceWriteTopic();
 
@@ -175,7 +175,7 @@ public class StreamingWordCount {
 
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void run(String[] args) throws IOException {
         Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
 
 

@@ -117,13 +117,13 @@ public class StreamingMovingAverage {
 
         void setSolaceURL(String solaceUrl);
 
-        @Description("Solace-Read-Topic")
+        @Description("Solace-Moving-Averages-Read-Topic")
         @Default.String("SOLACE/BEAM/PRICES")
         String getSolaceReadTopic();
 
         void setSolaceReadTopic(String solaceReadTopic);
 
-        @Description("Solace-Write-Topic")
+        @Description("Solace-Moving-Averages-Write-Topic")
         @Default.String("SOLACE/BEAM/AVERAGES")
         String getSolaceWriteTopic();
 
@@ -131,7 +131,7 @@ public class StreamingMovingAverage {
 
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void run(String[] args) throws IOException {
        Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
 
 
