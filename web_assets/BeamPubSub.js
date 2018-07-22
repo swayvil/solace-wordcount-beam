@@ -89,7 +89,6 @@ var BeamPubSub = function (readTopicName,writeTopicName,subscriptionFunction) {
         // define session event listeners
         beamPubSub.session.on(solace.SessionEventCode.UP_NOTICE, function (sessionEvent) {
             beamPubSub.log('=== Successfully connected and ready to publish messages. ===');
-            document.getElementById("WordCount").style.display='block';
             if(!beamPubSub.subscribed){
                           beamPubSub.subscribe();
              }

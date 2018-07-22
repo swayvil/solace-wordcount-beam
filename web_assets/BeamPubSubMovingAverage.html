@@ -120,26 +120,8 @@
     };
 
 
-
-        // assign buttons to the publisher functions
-         document.getElementById("publish").addEventListener("click", function(){window.setInterval(function(){
-          var volatility = 0.001;
-          var rnd = Math.random(); // generate number, 0 <= x < 1.0
-          var change_percent = 2 * volatility * rnd;
-          if (change_percent > volatility)
-            change_percent -= (2 * volatility);
-          change_amount = old_price * change_percent;
-          var new_price = old_price + change_amount;
-          // beamPubSub.publish(new_price);
-          document.getElementById('price').innerHTML=new_price;
-          beamPubSub.publish(new_price);
-          old_price=new_price;
-
-         },1000)});
-
-
          beamPubSub.connect();
-
+         beamPubSub.subscribe()
 
 
 
@@ -206,13 +188,6 @@ Apache Beam Solace Sample
       which are published right back to your browser through Solace PubSub+.</p>
       <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
 
-      <div style="width:35%; float:left; border:0px solid; margin-right:45px;">
-  <form class="pure-form pure-form-aligned">
-    <div id="WordCount">
-      <button type="button" class="pure-button pure-button-primary" id="publish">Start GOOGL Price Simulator</button>
-    </p>
-    </div>
-</div>
 
 <div style="width:60%; float:left; border:0px solid;">
 

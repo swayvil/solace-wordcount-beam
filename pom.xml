@@ -109,7 +109,7 @@
           <arguments>
             <argument>-classpath</argument>
             <classpath />
-            <argument>com.solace.beam.sample.Launcher</argument>
+            <argument>com.solace.beam.sample.StreamingWordCount</argument>
           </arguments>
         </configuration>
       </plugin>

@@ -175,7 +175,7 @@ public class StreamingWordCount {
 
     }
 
-    public static void run(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
 
 
