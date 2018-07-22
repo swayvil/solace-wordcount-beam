@@ -26,33 +26,12 @@
 /*jslint es6 browser devel:true*/
 /*global solace*/
 
-var BeamPubSub = function (readTopicName,writeTopicName) {
+var BeamPubSub = function (readTopicName,writeTopicName,subscriptionFunction) {
     'use strict';
     var beamPubSub = {};
     beamPubSub.session = null;
     beamPubSub.readTopicName = readTopicName;
     beamPubSub.writeTopicName = writeTopicName;
-    beamPubSub.chartData={};
-    beamPubSub.chartData.labels=[];
-    beamPubSub.chartData.series=[];
-
-    beamPubSub.chart =  new Chartist.Line('.ct-chart', {
-                         series: [{
-                           name: 'GOOGL',
-                           data: []
-                         }]
-                       }, {
-                         axisX: {
-                           type: Chartist.FixedScaleAxis,
-                           divisor: 5,
-                           labelInterpolationFnc: function(value) {
-                             return moment(value).format('HH:mm:ss');
-                           }
-                         },
-                         axisY: {
-                           position: 'right'
-                         },
-                       })
 
     // Logger
     beamPubSub.log = function (line) {
@@ -131,16 +110,8 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
                         beamPubSub.log('=== Ready to receive messages. ===');
                     }
                 });
-                // define message event listener
-                beamPubSub.session.on(solace.SessionEventCode.MESSAGE, function (message) {
-                var price_object=JSON.parse(message.getSdtContainer().Gi);
-                beamPubSub.chart.data.series[0].data.push({x:Number(price_object.timestamp),y:Number(price_object.price)});
-//                beamPubSub.chart.update(beamPubSub.chartData);
-                beamPubSub.chart.update();
-                  document.getElementById('beam-loading').style.visibility='hidden';
-                  beamPubSub.wordCountHTML="";
-
-                });
+         // define message event listener
+                beamPubSub.session.on(solace.SessionEventCode.MESSAGE, subscriptionFunction);
 
 
         beamPubSub.session.on(solace.SessionEventCode.DISCONNECTED, function (sessionEvent) {
@@ -168,30 +139,6 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
         }
     };
 
-    // Publishes one message
-    beamPubSub.publish = function (value) {
-        if (beamPubSub.session !== null) {
-
-            if(value)
-            {
-            var message = solace.SolclientFactory.createMessage();
-            message.setDestination(solace.SolclientFactory.createTopicDestination(beamPubSub.readTopicName));
-            message.setSdtContainer(solace.SDTField.create(solace.SDTFieldType.STRING,value.toString()));
-            message.setDeliveryMode(solace.MessageDeliveryModeType.DIRECT);
-            message.setApplicationMessageId((Math.floor(Math.random() * Math.floor(10000))).toString());
-            message.setSenderTimestamp(Date.now());
-            try {
-                beamPubSub.session.send(message);
-                document.getElementById('beam-loading').style.visibility='visible';
-                beamPubSub.log('Message published.');
-            } catch (error) {
-                beamPubSub.log(error.toString());
-            }
-            }
-        }else {
-             beamPubSub.log('Cannot publish because not connected to Solace message router.');
-        }
-    };
 
      beamPubSub.subscribe = function () {
             if (beamPubSub.session !== null) {

@@ -26,14 +26,14 @@
 /*jslint es6 browser devel:true*/
 /*global solace*/
 
-var BeamPubSub = function (readTopicName,writeTopicName) {
+var BeamPubSub = function (readTopicName,writeTopicName,subscriptionFunction) {
     'use strict';
     var beamPubSub = {};
     beamPubSub.session = null;
     beamPubSub.readTopicName = readTopicName;
     beamPubSub.writeTopicName = writeTopicName;
     beamPubSub.wordCounts=[];
-    beamPubSub.wordCountHTML
+    beamPubSub.wordCountHTML;
 
     // Logger
     beamPubSub.log = function (line) {
@@ -113,22 +113,7 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
                     }
                 });
                 // define message event listener
-                beamPubSub.session.on(solace.SessionEventCode.MESSAGE, function (message) {
-                   beamPubSub.wordCounts.push(JSON.parse(message.getSdtContainer().Gi));
-                   document.getElementById('beam-loading').style.visibility='hidden';
-                   beamPubSub.wordCountHTML="";
-                  _.each(_.groupBy(beamPubSub.wordCounts,'timestamp'),function(groupedValues,key){
-                                    beamPubSub.wordCountHTML += "<table class='wordcounttable'><tr><td colspan=2 style='background:#888; color:#fff;'>" + key +"</td></tr><tr><th>Word</th><th>Count</th></tr>"
-                                    var that = this;
-                  					console.log(key);
-                                      _.each(groupedValues,function(value){
-                  						beamPubSub.wordCountHTML+="<tr><td align=center>"+value.word+"</td><td align=center>"+value.count+"</td></tr>"
-                  					})
-                  					beamPubSub.wordCountHTML+="</table>"
-                      });
-
-                   document.getElementById('WordCountTables').innerHTML=beamPubSub.wordCountHTML;
-                });
+                beamPubSub.session.on(solace.SessionEventCode.MESSAGE, subscriptionFunction);
 
 
         beamPubSub.session.on(solace.SessionEventCode.DISCONNECTED, function (sessionEvent) {
@@ -156,35 +141,7 @@ var BeamPubSub = function (readTopicName,writeTopicName) {
         }
     };
 
-    // Publishes one message
-    beamPubSub.publish = function () {
-        if (beamPubSub.session !== null) {
 
-
-
-            var messageText = document.getElementById('wordcountText').value.trim();
-
-            if(!_.isEmpty(messageText))
-            {
-            var message = solace.SolclientFactory.createMessage();
-            message.setDestination(solace.SolclientFactory.createTopicDestination(beamPubSub.readTopicName));
-            message.setSdtContainer(solace.SDTField.create(solace.SDTFieldType.STRING,messageText));
-            message.setDeliveryMode(solace.MessageDeliveryModeType.DIRECT);
-            message.setApplicationMessageId((Math.floor(Math.random() * Math.floor(10000))).toString());
-            message.setSenderTimestamp(Date.now());
-            try {
-                beamPubSub.session.send(message);
-                document.getElementById('wordcountText').value='';
-                document.getElementById('beam-loading').style.visibility='visible';
-                beamPubSub.log('Message published.');
-            } catch (error) {
-                beamPubSub.log(error.toString());
-            }
-            }
-        }else {
-             beamPubSub.log('Cannot publish because not connected to Solace message router.');
-        }
-    };
 
      beamPubSub.subscribe = function () {
             if (beamPubSub.session !== null) {

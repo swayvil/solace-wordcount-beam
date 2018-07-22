@@ -45,18 +45,67 @@
   <!-- Execute the PublishSubscribe Topic Publisher tutorial -->
   <script>
       var beamPubSub = null;
+      var wordCounts=[];
+      var wordCountHTML='';
+
+      var subscriptionFunction=function (message) {
+                   wordCounts.push(JSON.parse(message.getSdtContainer().Gi));
+                   document.getElementById('beam-loading').style.visibility='hidden';
+                   wordCountHTML="";
+                  _.each(_.groupBy(wordCounts,'timestamp'),function(groupedValues,key){
+                                    wordCountHTML += "<table class='wordcounttable'><tr><td colspan=2 style='background:#888; color:#fff;'>" + key +"</td></tr><tr><th>Word</th><th>Count</th></tr>"
+                                    var that = this;
+                                      _.each(groupedValues,function(value){
+                                            wordCountHTML+="<tr><td align=center>"+value.word+"</td><td align=center>"+value.count+"</td></tr>"
+                  					})
+                  					wordCountHTML+="</table>"
+                      });
+
+                   document.getElementById('WordCountTables').innerHTML=wordCountHTML;
+       };
+
       window.onload = function () {
         // Initialize factory with the most recent API defaults
         var factoryProps = new solace.SolclientFactoryProperties();
         factoryProps.profile = solace.SolclientFactoryProfiles.version10;
         solace.SolclientFactory.init(factoryProps);
 
+
         // enable logging to JavaScript console at WARN level
         // NOTICE: works only with "solclientjs-debug.js"
         solace.SolclientFactory.setLogLevel(solace.LogLevel.WARN);
 
         // create the publisher, specifying name of the subscription topic
-        beamPubSub = new BeamPubSub('SOLACE/BEAM/WRITE','SOLACE/BEAM/READ');
+        beamPubSub = new BeamPubSub('SOLACE/BEAM/WRITE','SOLACE/BEAM/READ',subscriptionFunction);
+
+        beamPubSub.publish = function (value) {
+        if (beamPubSub.session !== null) {
+
+
+
+            var messageText = document.getElementById('wordcountText').value.trim();
+
+            if(!_.isEmpty(messageText))
+            {
+            var message = solace.SolclientFactory.createMessage();
+            message.setDestination(solace.SolclientFactory.createTopicDestination(beamPubSub.readTopicName));
+            message.setSdtContainer(solace.SDTField.create(solace.SDTFieldType.STRING,messageText));
+            message.setDeliveryMode(solace.MessageDeliveryModeType.DIRECT);
+            message.setApplicationMessageId((Math.floor(Math.random() * Math.floor(10000))).toString());
+            message.setSenderTimestamp(Date.now());
+            try {
+                beamPubSub.session.send(message);
+                document.getElementById('wordcountText').value='';
+                document.getElementById('beam-loading').style.visibility='visible';
+                beamPubSub.log('Message published.');
+            } catch (error) {
+                beamPubSub.log(error.toString());
+            }
+            }
+        }else {
+             beamPubSub.log('Cannot publish because not connected to Solace message router.');
+        }
+        };
 
 
         // assign buttons to the publisher functions

@@ -45,24 +45,36 @@
   <script src="solclient.js"></script>
 
   <!-- Load the PublishSubscribe Topic Publisher tutorial -->
-  <script src="BeamPubSubMovingAverage.js"></script>
+  <script src="BeamPubSub.js"></script>
 
   <!-- Execute the PublishSubscribe Topic Publisher tutorial -->
   <script>
       var beamPubSub = null;
       var old_price=1197.88;
 
-      var chartLabels=[];
-      var chartSeries=[];
-
-
-
-      function simulatePrice(){
-
-
-      }
+      var chart = null;
 
       window.onload = function () {
+
+        chart  =  new Chartist.Line('.ct-chart', {
+                         series: [{
+                           name: 'GOOGL',
+                           data: []
+                         }]
+                       }, {
+                         axisX: {
+                           type: Chartist.FixedScaleAxis,
+                           divisor: 5,
+                           labelInterpolationFnc: function(value) {
+                             return moment(value).format('HH:mm:ss');
+                           }
+                         },
+                         axisY: {
+                           position: 'right'
+                         },
+                       })
+
+
         // Initialize factory with the most recent API defaults
         var factoryProps = new solace.SolclientFactoryProperties();
         factoryProps.profile = solace.SolclientFactoryProfiles.version10;
@@ -72,8 +84,41 @@
         // NOTICE: works only with "solclientjs-debug.js"
         solace.SolclientFactory.setLogLevel(solace.LogLevel.WARN);
 
+        var subscriptionFunction = function (message) {
+                var price_object=JSON.parse(message.getSdtContainer().Gi);
+                chart.data.series[0].data.push({x:Number(price_object.timestamp),y:Number(price_object.price)});
+                chart.update();
+                document.getElementById('beam-loading').style.visibility='hidden';
+        }
+
         // create the publisher, specifying name of the subscription topic
-        beamPubSub = new BeamPubSub('SOLACE/BEAM/PRICES','SOLACE/BEAM/AVERAGES');
+        beamPubSub = new BeamPubSub('SOLACE/BEAM/PRICES','SOLACE/BEAM/AVERAGES',subscriptionFunction);
+
+         // Publishes one message
+    beamPubSub.publish = function (value) {
+        if (beamPubSub.session !== null) {
+
+            if(value)
+            {
+            var message = solace.SolclientFactory.createMessage();
+            message.setDestination(solace.SolclientFactory.createTopicDestination(beamPubSub.readTopicName));
+            message.setSdtContainer(solace.SDTField.create(solace.SDTFieldType.STRING,value.toString()));
+            message.setDeliveryMode(solace.MessageDeliveryModeType.DIRECT);
+            message.setApplicationMessageId((Math.floor(Math.random() * Math.floor(10000))).toString());
+            message.setSenderTimestamp(Date.now());
+            try {
+                beamPubSub.session.send(message);
+                document.getElementById('beam-loading').style.visibility='visible';
+                beamPubSub.log('Message published.');
+            } catch (error) {
+                beamPubSub.log(error.toString());
+            }
+            }
+        }else {
+             beamPubSub.log('Cannot publish because not connected to Solace message router.');
+        }
+    };
+
 
 
         // assign buttons to the publisher functions

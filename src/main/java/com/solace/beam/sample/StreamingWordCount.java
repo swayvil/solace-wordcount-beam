@@ -202,6 +202,7 @@ public class StreamingWordCount {
                 .apply("StringCombination", ParDo.of(new DoFn<String, String>() {
                     @ProcessElement
                     public void processElement(ProcessContext c){
+                      if(!c.element().isEmpty())
                        c.output(c.element() + ",\"timestamp\":\"" + c.timestamp()+"\"}");
                     }
                 }))
