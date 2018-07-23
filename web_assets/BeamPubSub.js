@@ -102,14 +102,11 @@ var BeamPubSub = function (readTopicName,writeTopicName,subscriptionFunction) {
                     beamPubSub.log('Cannot subscribe to topic: ' + sessionEvent.correlationKey);
                 });
                 beamPubSub.session.on(solace.SessionEventCode.SUBSCRIPTION_OK, function (sessionEvent) {
-                    if (beamPubSub.subscribed) {
-                        beamPubSub.subscribed = false;
-                        beamPubSub.log('Successfully unsubscribed from topic: ' + sessionEvent.correlationKey);
-                    } else {
+
                         beamPubSub.subscribed = true;
                         beamPubSub.log('Successfully subscribed to topic: ' + sessionEvent.correlationKey);
                         beamPubSub.log('=== Ready to receive messages. ===');
-                    }
+
                 });
                 // define message event listener
                 beamPubSub.session.on(solace.SessionEventCode.MESSAGE, subscriptionFunction);
@@ -150,12 +147,14 @@ var BeamPubSub = function (readTopicName,writeTopicName,subscriptionFunction) {
                 } else {
                     beamPubSub.log('Subscribing to topic: ' + beamPubSub.writeTopicName);
                     try {
+
+                    beamPubSub.writeTopicName.forEach(function(value){
                         beamPubSub.session.subscribe(
-                            solace.SolclientFactory.createTopicDestination(beamPubSub.writeTopicName),
+                            solace.SolclientFactory.createTopicDestination(value),
                             true, // generate confirmation when subscription is added successfully
-                            beamPubSub.writeTopicName, // use topic name as correlation key
+                            value, // use topic name as correlation key
                             10000 // 10 seconds timeout for this operation
-                        );
+                        )});
                     } catch (error) {
                         beamPubSub.log(error.toString());
                     }

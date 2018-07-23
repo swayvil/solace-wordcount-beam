@@ -104,14 +104,14 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
-        <configuration>
-          <executable>java</executable>
-          <arguments>
-            <argument>-classpath</argument>
-            <classpath />
-            <argument>com.solace.beam.sample.StreamingWordCount</argument>
-          </arguments>
-        </configuration>
+        <!--<configuration>-->
+          <!--<executable>java</executable>-->
+          <!--<arguments>-->
+            <!--<argument>-classpath</argument>-->
+            <!--<classpath />-->
+            <!--<argument>com.solace.beam.sample.StreamingWordCount</argument>-->
+          <!--</arguments>-->
+        <!--</configuration>-->
       </plugin>
 
       <!--

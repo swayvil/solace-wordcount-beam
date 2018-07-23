@@ -85,14 +85,18 @@
         solace.SolclientFactory.setLogLevel(solace.LogLevel.WARN);
 
         var subscriptionFunction = function (message) {
+            if(message.getDestination().getName()==='SOLACE/BEAM/AVERAGES'){
                 var price_object=JSON.parse(message.getSdtContainer().Gi);
                 chart.data.series[0].data.push({x:Number(price_object.timestamp),y:Number(price_object.price)});
                 chart.update();
                 document.getElementById('beam-loading').style.visibility='hidden';
+             }else if(message.getDestination().getName()==='SOLACE/BEAM/PRICES'){
+                document.getElementById('price').innerHTML=message.getSdtContainer().Gi;
+             }
         }
 
         // create the publisher, specifying name of the subscription topic
-        beamPubSub = new BeamPubSub('SOLACE/BEAM/PRICES','SOLACE/BEAM/AVERAGES',subscriptionFunction);
+        beamPubSub = new BeamPubSub('',['SOLACE/BEAM/PRICES','SOLACE/BEAM/AVERAGES'],subscriptionFunction);
 
          // Publishes one message
     beamPubSub.publish = function (value) {
@@ -200,7 +204,7 @@ Apache Beam Solace Sample
 </div>
 
       <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
-    GOOGL: <div id="price"></div>
+    GOOGL: <span id="price"></span>
     <div class="ct-chart ct-perfect-fourth"></div>
 </div>
 

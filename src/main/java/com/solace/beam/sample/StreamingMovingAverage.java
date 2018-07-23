@@ -120,7 +120,6 @@ public class StreamingMovingAverage {
         @Description("Solace-Moving-Averages-Read-Topic")
         @Default.String("SOLACE/BEAM/PRICES")
         String getSolaceReadTopic();
-
         void setSolaceReadTopic(String solaceReadTopic);
 
         @Description("Solace-Moving-Averages-Write-Topic")

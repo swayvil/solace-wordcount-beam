@@ -1,8 +1,6 @@
 ### Apache BEAM Solace Integration 
 
-![Solace Apache Beam](static_assets/word-count-beam.png "Apache Beam Solace")
-
-This is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the results of a word count Beam processor through another stream.
+These repos contain two very simple examples on how to integrate streams with Apache BEAM through the Solace PubSub+ Software Broker. 
 
 ### Setting up a Solace PubSub+ Broker with Docker
 
@@ -15,18 +13,34 @@ This is a very simple example of an Apache Beam Pipeline that allows you to stre
        >docker run -d -p 80:80 -p 8080:8080 -p 55555:55555 --shm-size=2g --env username_admin_global
        accesslevel=admin --env username_admin_password=admin  --name=solace solace-pubsub-standard:x.x.x.x
       ```
+
+
+### Running the word count stream processing example
+This is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the results of a word count Beam processor through another stream.
+
+![Solace Apache Beam](static_assets/word-count-beam.png "Apache Beam Solace")
+
+To run the example locally:
       
    * Run the following maven commands - 
         ```
             >mvn clean install
-            >mvn exec:exec
+            >mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.StreamingWordCount"
         ```
     
-   * Got web_assets\BeamPubSub.html and  type text into the TextArea and Click 'Publish Message'.     
+   * Got web_assets\BeamPubSubWordCount.html and  type text into the TextArea and Click 'Publish Message'.     
      The text will get sent to Apache Beam and results will be streamed back!
    
-   ![Solace Apache Beam](static_assets/apache-beam-solace.gif "Solace APache Beam")
+### Running the moving average stream processing example
+ This is a very simple example of an Apache Beam pipeline that calculates averages of simulated stock prices over a 5 second window.
 
 
-
-
+To run the example locally:
+ * Run the following maven commands - 
+        ```
+            >mvn clean install
+            >mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.StreamingMovingAverage"
+            >mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.PriceSimulator"
+        ```
+    
+   * Got web_assets\BeamPubSubMovingAverage.html and you will automatically see the results of the moving average streamed to the chart!

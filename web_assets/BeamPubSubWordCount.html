@@ -76,7 +76,7 @@
         solace.SolclientFactory.setLogLevel(solace.LogLevel.WARN);
 
         // create the publisher, specifying name of the subscription topic
-        beamPubSub = new BeamPubSub('SOLACE/BEAM/WRITE','SOLACE/BEAM/READ',subscriptionFunction);
+        beamPubSub = new BeamPubSub('SOLACE/BEAM/WRITE',['SOLACE/BEAM/READ'],subscriptionFunction);
 
         beamPubSub.publish = function (value) {
         if (beamPubSub.session !== null) {

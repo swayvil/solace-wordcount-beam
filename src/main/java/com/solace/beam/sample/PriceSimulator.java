@@ -80,7 +80,7 @@ public class PriceSimulator {
                 try {
                     TextMessage message = context.createTextMessage();
                     BigDecimal roundedPrice = BigDecimal.valueOf(newPrice)
-                            .setScale(3, RoundingMode.HALF_UP);
+                            .setScale(2, RoundingMode.HALF_UP);
                     message.setText(roundedPrice.toString());
                     messageProducer.send(priceTopic,message);
                 } catch (JMSException e) {
