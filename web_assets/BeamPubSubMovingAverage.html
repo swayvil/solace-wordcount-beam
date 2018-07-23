@@ -93,7 +93,6 @@
                     chart.data.series[0].data.shift();
                 chart.data.series[0].data.push({x:Number(price_object.timestamp),y:Number(price_object.price)});
                 chart.update();
-                document.getElementById('beam-loading').style.visibility='hidden';
              }else if(message.getDestination().getName()==='SOLACE/BEAM/PRICES'){
                 document.getElementById('price').innerHTML=message.getSdtContainer().Gi;
              }
