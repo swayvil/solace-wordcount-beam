@@ -18,7 +18,7 @@ These repos contain two very simple examples on how to integrate streams with Ap
 ### Running the word count stream processing example
 This is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the results of a word count Beam processor through another stream.
 
-![Solace Apache Beam](static_assets/word-count-beam.png "Apache Beam Solace")
+![Solace Apache Beam](web_assets/word-count-beam.png "Apache Beam Solace")
 
 To run the example locally:
       
@@ -34,9 +34,8 @@ To run the example locally:
 ### Running the moving average stream processing example
  This is a very simple example of an Apache Beam pipeline that calculates averages of simulated stock prices over a 5 second window.
 
-
 To run the example locally:
- * Run the following maven commands - 
+   * Run the following maven commands - 
         ```
             >mvn clean install
             >mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.StreamingMovingAverage"
