@@ -32,9 +32,11 @@ To run the example locally:
      The text will get sent to Apache Beam and results will be streamed back!
    
 ### Running the moving average stream processing example
+![Solace Apache Beam](web_assets/word-count-moving-average.png "Apache Beam Solace")
  This is a very simple example of an Apache Beam pipeline that calculates averages of simulated stock prices over a 5 second window.
 
 To run the example locally:
+
    * Run the following maven commands - 
         ```
             >mvn clean install
