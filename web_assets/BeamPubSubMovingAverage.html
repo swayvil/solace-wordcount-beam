@@ -89,7 +89,7 @@
         var subscriptionFunction = function (message) {
             if(message.getDestination().getName()==='SOLACE/BEAM/AVERAGES'){
                 var price_object=JSON.parse(message.getSdtContainer().Gi);
-                if(chart.data.series[0].data.length>999)
+                if(chart.data.series[0].data.length>60)
                     chart.data.series[0].data.shift();
                 chart.data.series[0].data.push({x:Number(price_object.timestamp),y:Number(price_object.price)});
                 chart.update();
