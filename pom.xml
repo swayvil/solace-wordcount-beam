@@ -27,7 +27,10 @@
   <packaging>jar</packaging>
 
   <properties>
-    <beam.version>2.5.0</beam.version>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+
+    <beam.version>2.16.0</beam.version>
 
     <bigquery.version>v2-rev374-1.22.0</bigquery.version>
     <google-clients.version>1.22.0</google-clients.version>
@@ -36,7 +39,7 @@
     <jackson.version>2.8.9</jackson.version>
     <joda.version>2.4</joda.version>
     <junit.version>4.12</junit.version>
-    <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
     <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
     <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
@@ -118,7 +121,7 @@
         Configures `mvn package` to produce a bundled jar ("fat jar") for runners
         that require this for job submission to a cluster.
       -->
-      <plugin>
+      <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>${maven-shade-plugin.version}</version>
@@ -147,7 +150,39 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
+
+      <!-- Maven Assembly Plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<!-- get all project dependencies -->
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef> <!-- Generate a jar with all the dependencies included -->
+					</descriptorRefs>
+					<appendAssemblyId>false</appendAssemblyId>	<!-- Avoid the "jar-with-dependencies" suffix -->
+
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>com.solace.beam.sample.StreamingWordCount</mainClass>
+						</manifest>
+					</archive>
+
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<!-- bind to the packaging phase -->
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
     </plugins>
 
     <pluginManagement>
@@ -459,11 +494,28 @@
       <version>0.34.0</version>
     </dependency>
 
-
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
       <version>4.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
+      <artifactId>proton-j</artifactId>
+      <version>0.33.2</version>
+    </dependency>
+
+    <!-- AmqpIO -->
+    <dependency> <!-- Requiered to get Messenger dependency for AmqpIO -->
+        <groupId>org.apache.qpid</groupId>
+        <artifactId>proton-j</artifactId>
+        <version>0.16.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.beam.sdk.io.amqp</groupId>
+      <artifactId>amqp-io</artifactId>
+      <version>2.16.0</version>
     </dependency>
   </dependencies>
 </project>

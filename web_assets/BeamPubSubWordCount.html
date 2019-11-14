@@ -25,179 +25,172 @@
 -->
 
 <html lang="en">
-
 <head>
   <title>Apache Beam Solace Sample</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge;" />
-  <meta charset="utf-8"/>
+  <meta charset="utf-8" />
 
-  <link rel="stylesheet" type="text/css" href="pure.css"></link>
-  <link rel="stylesheet" type="text/css" href="samples.css"></link>
+  <link rel="stylesheet" type="text/css" href="pure.css">
+  </link>
+  <link rel="stylesheet" type="text/css" href="samples.css">
+  </link>
 
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
   <!-- Load Solace Web Messaging API for JavaScript -->
   <script src="solclient.js"></script>
-
   <!-- Load the PublishSubscribe Topic Publisher tutorial -->
   <script src="BeamPubSub.js"></script>
-
   <!-- Execute the PublishSubscribe Topic Publisher tutorial -->
   <script>
-      var beamPubSub = null;
-      var wordCounts=[];
-      var wordCountHTML='';
+    var beamPubSub = null;
+    var wordCounts = [];
+    var wordCountHTML = '';
 
-      var subscriptionFunction=function (message) {
-                   wordCounts.push(JSON.parse(message.getSdtContainer().Gi));
-                   document.getElementById('beam-loading').style.visibility='hidden';
-                   wordCountHTML="";
-                  _.each(_.groupBy(wordCounts,'timestamp'),function(groupedValues,key){
-                                    wordCountHTML += "<table class='wordcounttable'><tr><td colspan=2 style='background:#888; color:#fff;'>" + key +"</td></tr><tr><th>Word</th><th>Count</th></tr>"
-                                    var that = this;
-                                      _.each(groupedValues,function(value){
-                                            wordCountHTML+="<tr><td align=center>"+value.word+"</td><td align=center>"+value.count+"</td></tr>"
-                  					})
-                  					wordCountHTML+="</table>"
-                      });
+    var subscriptionFunction = function (message) {
+      wordCounts.push(JSON.parse(message));
+      document.getElementById('beam-loading').style.visibility = 'hidden';
+      wordCountHTML = "";
+      _.each(_.groupBy(wordCounts, 'timestamp'), function (groupedValues, key) {
+        wordCountHTML += "<table class='wordcounttable'><tr><td colspan=2 style='background:#888; color:#fff;'>" + key + "</td></tr><tr><th>Word</th><th>Count</th></tr>"
+        var that = this;
+        _.each(groupedValues, function (value) {
+          wordCountHTML += "<tr><td align=center>" + value.word + "</td><td align=center>" + value.count + "</td></tr>"
+        })
+        wordCountHTML += "</table>"
+      });
+      document.getElementById('WordCountTables').innerHTML = wordCountHTML;
+    };
 
-                   document.getElementById('WordCountTables').innerHTML=wordCountHTML;
-       };
+    window.onload = function () {
+      // Initialize factory with the most recent API defaults
+      var factoryProps = new solace.SolclientFactoryProperties();
+      factoryProps.profile = solace.SolclientFactoryProfiles.version10;
+      solace.SolclientFactory.init(factoryProps);
 
-      window.onload = function () {
-        // Initialize factory with the most recent API defaults
-        var factoryProps = new solace.SolclientFactoryProperties();
-        factoryProps.profile = solace.SolclientFactoryProfiles.version10;
-        solace.SolclientFactory.init(factoryProps);
+      // enable logging to JavaScript console at WARN level
+      // NOTICE: works only with "solclientjs-debug.js"
+      solace.SolclientFactory.setLogLevel(solace.LogLevel.WARN);
 
+      // create the publisher, specifying name of the subscription topic
+      beamPubSub = new BeamPubSub(subscriptionFunction);
+      beamPubSub.connect();
+      beamPubSub.startConsume();
 
-        // enable logging to JavaScript console at WARN level
-        // NOTICE: works only with "solclientjs-debug.js"
-        solace.SolclientFactory.setLogLevel(solace.LogLevel.WARN);
-
-        // create the publisher, specifying name of the subscription topic
-        beamPubSub = new BeamPubSub('SOLACE/BEAM/WRITE',['SOLACE/BEAM/READ'],subscriptionFunction);
-
-        beamPubSub.publish = function (value) {
+      beamPubSub.publish = function (value) {
         if (beamPubSub.session !== null) {
+          var messageText = document.getElementById('wordcountText').value.trim();
 
-            var messageText = document.getElementById('wordcountText').value.trim();
-
-            if(!_.isEmpty(messageText))
-            {
+          if (!_.isEmpty(messageText)) {
             var message = solace.SolclientFactory.createMessage();
-            message.setDestination(solace.SolclientFactory.createTopicDestination(beamPubSub.readTopicName));
-            message.setSdtContainer(solace.SDTField.create(solace.SDTFieldType.STRING,messageText));
+            message.setDestination(solace.SolclientFactory.createTopicDestination(beamPubSub.writeTopicName));
+            message.setSdtContainer(solace.SDTField.create(solace.SDTFieldType.STRING, messageText));
             message.setDeliveryMode(solace.MessageDeliveryModeType.DIRECT);
             message.setApplicationMessageId((Math.floor(Math.random() * Math.floor(10000))).toString());
             message.setSenderTimestamp(Date.now());
             try {
-                beamPubSub.session.send(message);
-                document.getElementById('wordcountText').value='';
-                document.getElementById('beam-loading').style.visibility='visible';
-                beamPubSub.log('Message published.');
+              beamPubSub.session.send(message);
+              document.getElementById('wordcountText').value = '';
+              document.getElementById('beam-loading').style.visibility = 'visible';
+              beamPubSub.log('Message published.');
             } catch (error) {
-                beamPubSub.log(error.toString());
+              beamPubSub.log(error.toString());
             }
-            }
-        }else {
-             beamPubSub.log('Cannot publish because not connected to Solace message router.');
-        }
-        };
-
-
-        // assign buttons to the publisher functions
-         document.getElementById("publish").addEventListener("click", beamPubSub.publish);
-
-         beamPubSub.connect();
-
-      };
-      function iframeloaded(){
-        if (beamPubSub) {
-          beamPubSub.connectToSolace();
-
+          }
+        } else {
+          beamPubSub.log('Cannot publish because not connected to Solace message router.');
         }
       };
-    </script>
+      // assign buttons to the publisher functions
+      document.getElementById("publish").addEventListener("click", beamPubSub.publish);
+    };
+    function iframeloaded() {
+      if (beamPubSub) {
+        beamPubSub.connectToSolace();
+
+      }
+    };
+  </script>
   <style>
-        .warning {
-            padding: 5px;
-            border: 1px solid black;
-            background-color: #ff8;
-        }
-        .ie11 {
-            /* Hide instructions that only apply to IE11/Edge */
-            display: none;
-        }
-        @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-            .ie11 {
-                /* Show instructions in IE11. If you're trying this sample from the local filesystem,
+    .warning {
+      padding: 5px;
+      border: 1px solid black;
+      background-color: #ff8;
+    }
+    .ie11 {
+      /* Hide instructions that only apply to IE11/Edge */
+      display: none;
+    }
+
+    @media all and (-ms-high-contrast: none),
+    (-ms-high-contrast: active) {
+      .ie11 {
+        /* Show instructions in IE11. If you're trying this sample from the local filesystem,
                    it's easy to miss the prompt at the bottom of the window. */
-                display: block !important;
-            }
-        }
-	</style>
+        display: block !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<!-- used to prompt selection of client certificate -->
-<iframe id="iframe" src="" onload="iframeloaded()" hidden></iframe>
-<div class="banner">
-  <div class="banner-interior" style="width:1030px; margin: 0 auto;">
-        <span class="logo">
-          <a href="http://dev.solace.com/">
-            <img src="Solace_Logo_Green_360x100-1.png" width="360px" height="100px"/>
-          </a>
-        </span>
-    <div class="banner-heading" style="margin-top:25px;">
-Apache Beam Solace Sample
+  <!-- used to prompt selection of client certificate -->
+  <iframe id="iframe" src="" onload="iframeloaded()" hidden></iframe>
+  <div class="banner">
+    <div class="banner-interior" style="width:1030px; margin: 0 auto;">
+      <span class="logo">
+        <a href="http://dev.solace.com/">
+          <img src="Solace_Logo_Green_360x100-1.png" width="360px" height="100px" />
+        </a>
+      </span>
+      <div class="banner-heading" style="margin-top:25px;">
+        Apache Beam Solace Sample
+      </div>
     </div>
   </div>
-</div>
 
-
-<div class="doc-body">
-
-  <!--[if IE]>
+  <div class="doc-body">
+    <!--[if IE]>
   <div class="ie9 warning" style="padding: 5px; border: 1px solid black; background-color: #ff8;">
     IE9 only: If you are running this sample from the local filesystem, click the "Allow blocked content" button
     in the popup below to enable JavaScript.
   </div>
   <![endif]-->
-  <div class="ie11 warning">
-    IE 11 only: If you are running this sample from the local filesystem, click the "Allow blocked content" button
-    in the popup below to enable JavaScript.
-  </div>
-      <p style="font-size:.9em;"><img src="word-count-beam.png" style="width:420px; float:right; margin-left:25px;">This is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the results of a word count Beam processor through another stream. When you publish a message the text is sent to a PubSub+ message broker via WebSocket, then via AMQP to Apache Beam where the word count is calculated, and the results will be streamed back via those same protocols.
-          <br><br><a href="BeamPubSubMovingAverage.html">Click here to view a Solace -> Apache Beam 5 second moving average demo</a>
-          <br><br><a href="https://github.com/thomas-kunnumpurath/solace-wordcount-beam">Click here to view the github repo</a>
-      </p>
-      <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
-
-      <div style="width:35%; float:left; border:0px solid; margin-right:45px;">
-  <form class="pure-form pure-form-aligned">
-    <div id="WordCount">
-      Enter Message Text:<br>
-<textarea id="wordcountText" rows="5" cols="40" style="width:100%; font-size:.9em; resize:none;" autofocus></textarea><br>
-<button type="button" class="pure-button pure-button-primary" id="publish">Publish Message</button>
-    </p>
+    <div class="ie11 warning">
+      IE 11 only: If you are running this sample from the local filesystem, click the "Allow blocked content" button
+      in the popup below to enable JavaScript.
     </div>
-</div>
+    <p style="font-size:.9em;"><img src="word-count-beam.png" style="width:420px; float:right; margin-left:25px;">This
+      is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the
+      results of a word count Beam processor through another stream. When you publish a message the text is sent to a
+      PubSub+ message broker via WebSocket, then via AMQP to Apache Beam where the word count is calculated, and the
+      results will be streamed back via those same protocols.
+      <br><br><a href="BeamPubSubMovingAverage.html">Click here to view a Solace -> Apache Beam 5 second moving average
+        demo</a>
+      <br><br><a href="https://github.com/thomas-kunnumpurath/solace-wordcount-beam">Click here to view the github
+        repo</a>
+    </p>
+    <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
 
-<div style="width:60%; float:left; border:0px solid;">
+    <div style="width:35%; float:left; border:0px solid; margin-right:45px;">
+      <form class="pure-form pure-form-aligned">
+        <div id="WordCount">
+          Enter Message Text:<br>
+          <textarea id="wordcountText" rows="5" cols="40" style="width:100%; font-size:.9em; resize:none;"
+            autofocus></textarea><br>
+          <button type="button" class="pure-button pure-button-primary" id="publish">Publish Message</button>
+          </p>
+        </div>
+    </div>
 
-
-     <div id="beam-loading" style="visibility:hidden"><img src="beam-logo.png" class="beam-processing" width="35px" height="35px" />Processing...</div>
-    Log:<br>
-    <textarea id="log" rows="6" cols="60" autofocus style="width:100%; font-size:.9em;"></textarea>
-    
-  </form>
-</div>
-
-      <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
-  <div id="WordCountTables"></div>
-</div>
-
+    <div style="width:60%; float:left; border:0px solid;">
+      <div id="beam-loading" style="visibility:hidden"><img src="beam-logo.png" class="beam-processing" width="35px"
+          height="35px" />Processing...</div>
+      Log:<br>
+      <textarea id="log" rows="6" cols="60" autofocus style="width:100%; font-size:.9em;"></textarea>
+      </form>
+    </div>
+    <hr style=" width:100%; border-width:1px; border-color:#00C895; margin:25px 0;">
+    <div id="WordCountTables"></div>
+  </div>
 </body>
-
 </html>
