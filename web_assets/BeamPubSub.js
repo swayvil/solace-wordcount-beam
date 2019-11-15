@@ -186,7 +186,7 @@ var BeamPubSub = function (subscriptionFunction) {
                     // Define message received event listener
                     beamPubSub.messageConsumer.on(solace.MessageConsumerEventName.MESSAGE, function (message) {
                         var attachement = message.getBinaryAttachment();
-                        subscriptionFunction(attachement.substring(5, attachement.length - 1));
+                        subscriptionFunction(attachement.substring(5, attachement.length - 1)); // FIXME: why these 5 caracters?
                         // Need to explicitly ack otherwise it will not be deleted from the message router
                         message.acknowledge();
                     });

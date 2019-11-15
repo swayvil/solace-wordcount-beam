@@ -1,47 +1,49 @@
-### Apache BEAM Solace Integration 
+### Apache BEAM AmqpIO Solace Integration 
+This is a fork of ![Solace Wordcount Beam sample](https://github.com/thomas-kunnumpurath/solace-wordcount-beam) which is using JmsIO.
+This example is using AmqpIO:
+- A message is published to "SOLACE/BEAM/WRITE" topic using a websocket
+- The message is read from "SOLACE/BEAM/WRITE" queue using AmqpIO
+- The processed output is sent to "SOLACE/BEAM/READ" queue using AmqpIO
+- The output is read from "SOLACE/BEAM/READ" queue using a websocket
 
-These repos contain two very simple examples on how to integrate streams with Apache BEAM through the Solace PubSub+ Software Broker. 
+### How to use?
+## On Solace broker
+- Create a queue "SOLACE/BEAM/WRITE" which subscribes to "SOLACE/BEAM/WRITE" topic
+- Create a queue "SOLACE/BEAM/READ"
 
-### Setting up a Solace PubSub+ Broker with Docker
+## Install AmqpIO library
+The jar is on the lib directory, use Maven to install the artifact in local.
+```
+mvn install:install-file -Dfile=./lib/beam-sdks-java-io-amqp-2.16.0.jar -DgroupId=org.apache.beam.sdk.io.amqp -DartifactId=amqp-io -Dversion=2.16.0 -Dpackaging=jar -DgeneratePom=true
+```
 
-  
-   * Download the Solace PubSub+ Standard Docker Container - https://products.solace.com/download/PUBSUB_DOCKER_STAND
-   
-   * Run the following commands (replace x.x.x.x with the Solace PubSub+ Broker version)
-      ```
-       >docker load -i .\solace-pubsub-standard-x.x.x.x-docker.tar.gz
-       >docker run -d -p 80:80 -p 8080:8080 -p 55555:55555 --shm-size=2g --env username_admin_global
-       accesslevel=admin --env username_admin_password=admin  --name=solace solace-pubsub-standard:x.x.x.x
-      ```
+## Build Solace-Wordcount-Beam server side
+Apache Beam is working with Java 1.8:
+```
+export JAVA_HOME=<PATH to JDK 1.8 Home>
+mvn clean install
+```
+On MacOS JDK Home can be in "/Library/Java/JavaVirtualMachines/jdk1.8.0_231.jdk/Contents/Home"
 
+## Start Solace-Wordcount-Beam server side
+```
+mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.StreamingWordCount"
+```
 
-### Running the word count stream processing example
-This is a very simple example of an Apache Beam Pipeline that allows you to stream text via Solace PubSub+ and get the results of a word count Beam processor through another stream.
+## Configure Solace-Wordcount-Beam client side
+Edit "BeamPubSub.js" variable values:
+```
+var hosturl = 'ws://localhost:60080';
+var username = 'default';
+var pass = 'default';
+var vpn = 'default';
+```
 
-![Solace Apache Beam](web_assets/word-count-beam.png "Apache Beam Solace")
+## Start Solace-Wordcount-Beam client side
+In an Internet browser open "BeamPubSubWordCount.html".
 
-To run the example locally:
-      
-   * Run the following maven commands - 
-        ```
-            >mvn clean install
-            >mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.StreamingWordCount"
-        ```
-    
-   * Got web_assets\BeamPubSubWordCount.html and  type text into the TextArea and Click 'Publish Message'.     
-     The text will get sent to Apache Beam and results will be streamed back!
-   
-### Running the moving average stream processing example
-![Solace Apache Beam](web_assets/word-count-moving-average.png "Apache Beam Solace")
- This is a very simple example of an Apache Beam pipeline that calculates averages of simulated stock prices over a 5 second window.
-
-To run the example locally:
-
-   * Run the following maven commands - 
-        ```
-            >mvn clean install
-            >mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.StreamingMovingAverage"
-            >mvn exec:java -D"exec.mainClass"="com.solace.beam.sample.PriceSimulator"
-        ```
-    
-   * Got web_assets\BeamPubSubMovingAverage.html and you will automatically see the results of the moving average streamed to the chart!
+### AmqpIO limits (non exhaustive list)
+- Not part of Apache Beam latest Jar released. Need to build the jar from the sources
+- Marked as "Experimental" which ![*"Signifies that a public API (public class, method or field) is subject to incompatible changes, or even removal, in a future release.*"](https://beam.apache.org/releases/javadoc/2.3.0/org/apache/beam/sdk/annotations/Experimental.html)
+- Uses in dependencies "org.apache.qpid.proton.messenger.Messenger", which is deprecated ![*"The Messenger API has been deprecated. We recommend you use the newer APIs available part of the current Qpid Proton release for new projects."*](https://qpid.apache.org/proton/messenger.html)
+And was removed after tag ![0.16.0](https://github.com/apache/qpid-proton-j/tree/0.16.0/proton-j/src/main/java/org/apache/qpid/proton/messenger)

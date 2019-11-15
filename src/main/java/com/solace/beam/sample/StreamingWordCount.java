@@ -72,16 +72,6 @@ import org.joda.time.Duration;
 public class StreamingWordCount {
     static final int WINDOW_SIZE = 10; // Default window duration in minutes
 
-    /**
-     * A {@link DefaultValueFactory} that returns the current system time.
-     */
-    public static class DefaultToCurrentSystemTime implements DefaultValueFactory<Long> {
-        @Override
-        public Long create(PipelineOptions options) {
-            return System.currentTimeMillis();
-        }
-    }
-
     static class ExtractWordsFn extends DoFn<Message, String> {
         private static final long serialVersionUID = 3169475600427006678L;
         private final Counter emptyLines = Metrics.counter(ExtractWordsFn.class, "emptyLines");
@@ -89,12 +79,10 @@ public class StreamingWordCount {
 
         @ProcessElement
         public void processElement(ProcessContext c) {
-
-            // AmqpIO
             String messageString = c.element().getBody().toString();
+            messageString = messageString.substring(9); // FIXME: Remove AmqpValue string
             System.out.println("Receive message: " + messageString);
 
-            // String messageString = c.element().getPayload();
             lineLenDist.update(messageString.length());
             if (messageString.trim().isEmpty()) {
                 emptyLines.inc();
@@ -200,7 +188,7 @@ public class StreamingWordCount {
         pipeline
                 // Setting a read connection to Solace
                 .apply(AmqpIO.read()
-                    .withMaxNumRecords(1)
+                    .withMaxNumRecords(1)   // FIXME
                     .withAddresses(Collections.singletonList(solaceUrlRead)))
                 // Windowing the results over the window size (30L)
                 // .apply(Window.<Message>into(FixedWindows.of(Duration.standardSeconds(options.getWindowSize())))
