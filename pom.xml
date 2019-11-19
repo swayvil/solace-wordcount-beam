@@ -507,15 +507,16 @@
     </dependency>
 
     <!-- AmqpIO -->
-    <dependency> <!-- Requiered to get Messenger dependency for AmqpIO -->
+    <!-- Requiered to get Messenger dependency for AmqpIO -->
+    <dependency>
         <groupId>org.apache.qpid</groupId>
         <artifactId>proton-j</artifactId>
         <version>0.16.0</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.beam.sdk.io.amqp</groupId>
-      <artifactId>amqp-io</artifactId>
-      <version>2.16.0</version>
+        <groupId>org.apache.beam</groupId>
+        <artifactId>beam-sdks-java-io-amqp</artifactId>
+        <version>2.16.0</version>
     </dependency>
   </dependencies>
 </project>

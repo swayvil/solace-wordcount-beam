@@ -63,14 +63,14 @@ import org.joda.time.Duration;
  * <p>
  * By default, the pipeline will do fixed windowing, on 30-second windows. You
  * can change this interval by setting the {@code --windowSize} parameter, e.g.
- * {@code --windowSize=10} for 10-minute windows.
+ * {@code --windowSize=10} for 10-seconds windows.
  * <p>
  * <p>
  * The example will try to cancel the pipeline on the signal to terminate the
  * process (CTRL-C).
  */
 public class StreamingWordCount {
-    static final int WINDOW_SIZE = 10; // Default window duration in minutes
+    static final int WINDOW_SIZE = 10; // Default window duration in seconds
 
     static class ExtractWordsFn extends DoFn<Message, String> {
         private static final long serialVersionUID = 3169475600427006678L;
@@ -138,7 +138,7 @@ public class StreamingWordCount {
      * defaults. Can be customized by running --[option]=value as Program Arguments
      */
     public interface Options extends PipelineOptions {
-        @Description("Fixed window duration, in minutes")
+        @Description("Fixed window duration, in seconds")
         @Default.Integer(WINDOW_SIZE)
         Integer getWindowSize();
 
@@ -183,6 +183,7 @@ public class StreamingWordCount {
         // AmqpIO
         String solaceUrlRead = options.getSolaceUser().concat(":").concat(options.getSolacePassword()).concat("@")
                 .concat(options.getSolaceURL()).concat("/").concat(options.getSolaceReadTopic());
+        System.out.println("solaceUrlRead: " + solaceUrlRead);
         String solaceUrlWrite = options.getSolaceUser().concat(":").concat(options.getSolacePassword()).concat("@")
                 .concat(options.getSolaceURL()).concat("/").concat(options.getSolaceWriteTopic());
         pipeline
