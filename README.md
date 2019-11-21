@@ -40,3 +40,7 @@ In an Internet browser open "BeamPubSubWordCount.html".
 - Marked as "Experimental" which *["Signifies that a public API (public class, method or field) is subject to incompatible changes, or even removal, in a future release."](https://beam.apache.org/releases/javadoc/2.3.0/org/apache/beam/sdk/annotations/Experimental.html)*
 - Uses in dependencies "org.apache.qpid.proton.messenger.Messenger", which is deprecated *["The Messenger API has been deprecated. We recommend you use the newer APIs available part of the current Qpid Proton release for new projects."](https://qpid.apache.org/proton/messenger.html)*
 And was removed after tag [0.16.0](https://github.com/apache/qpid-proton-j/tree/0.16.0/proton-j/src/main/java/org/apache/qpid/proton/messenger)
+- If Solace PB+ Message VPN has authentification setted, the connection can't be established and a [PN_SASL_FAIL](https://qpid.apache.org/releases/qpid-proton-j-0.33.2/api/org/apache/qpid/proton/engine/Sasl.SaslState.html) (negotiation failed) error message is returned
+
+## License
+This project is licensed under the Apache License, Version 2.0. - See the [LICENSE](LICENSE) file for details.
